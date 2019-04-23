@@ -1,0 +1,58 @@
+- name: "raspbian | Creates directory {{ mkconfig_repo.dest }}"
+  file: 
+    path: "{{ mkconfig_repo.dest }}"
+    state: directory 
+    owner: "{{ username }}"
+    group: "{{ username }}" 
+    mode: "u=rwx,g=rx,o=rx" 
+    recurse: yes 
+  become: yes 
+  tags:
+    - installation
+
+- name: "raspbian | git clone MkConfig.git and checkout {{ mkconfig_repo.tag }}"
+  git:
+    repo: "{{ mkconfig_repo.src }}"
+    dest: "{{ mkconfig_repo.dest }}"
+    version: "{{ mkconfig_repo.tag }}"
+    force: yes 
+  tags:
+    - installation
+    - upgrade
+
+# NOTE: Since Mkconfig also relies on Jinja2 as templating engine. DO NOT use {{ item }} here otherwise Mkconfig template would be
+# poluted since {{ item }} is a shared variable in Jinja2
+- name: "raspbian | Set {{ mkconfig_repo.dest }}/cassandra.descriptor.yml"
+  template: src=../templates/cassandra.descriptor.yml dest="{{ mkconfig_repo.dest }}/cassandra.descriptor.yml"
+  tags:
+    - installation
+    - configuration
+
+- name: "raspbian | Set {{ mkconfig_repo.dest }}/collectd.genericjmx.cassandra.conf.yaml"
+  template: src=../templates/collectd.genericjmx.cassandra.conf.yaml dest="{{ mkconfig_repo.dest }}/collectd.genericjmx.cassandra.conf.yaml"
+  tags:
+    - installation
+    - configuration
+
+- name: "raspbian | Set {{ mkconfig_repo.dest }}/collectd.genericjmx.common.conf.yaml"
+  template: src=../templates/collectd.genericjmx.common.conf.yaml dest="{{ mkconfig_repo.dest }}/collectd.genericjmx.common.conf.yaml"
+  tags:
+    - installation
+    - configuration
+
+- name: "raspbian | pip install Mkconfig via virtualenv at {{ mkconfig_repo.dest }}/env"
+  pip:
+    name: "file://{{ mkconfig_repo.dest }}"
+    virtualenv: "{{ mkconfig_repo.dest }}/env"
+    virtualenv_python: python3.4
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: raspbian | Run MkConfig
+  command: "{{ mkconfig_repo.dest }}/env/bin/mkconfig -i{{ mkconfig_repo.dest }}/cassandra.descriptor.yml -o/etc/collectd/collectd.conf.d/jmx.conf"
+  become: yes
+  tags:
+    - installation
+    - upgrade

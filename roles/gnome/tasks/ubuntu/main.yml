@@ -1,0 +1,44 @@
+- name: "{{ ansible_distribution }} | Add gnome repo"
+  apt_repository:
+    repo: "{{ item }}"
+  with_items:
+    - 'ppa:gnome3-team/gnome3'
+    - 'ppa:gnome3-team/gnome3-staging'
+      #    - 'ppa:webupd8team/gnome3'
+    - 'ppa:trebelnik-stefina/ubuntu-tweak'
+  become: yes
+  tags:
+    - installation
+
+- name: "{{ ansible_distribution }} | Update apt packages"
+  become: yes 
+  apt: 
+    update_cache=yes
+  tags:
+    - installation
+    - upgrade
+
+- name: "{{ ansible_distribution }} | Make sure the gnome packages are installed"
+  apt:
+    pkg: "{{item}}"
+    state: present
+  with_items: "{{ target_packages }}"
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: "{{ ansible_distribution }} | Update display manager to gdm"
+  become: yes 
+  shell: dpkg-reconfigure gdm
+  tags:
+    - installation
+
+#- name: "{{ ansible_distribution }} | Purge the Unity packages if exists"
+#  apt:
+#    pkg: "{{item}}"
+#    state: absent
+#  with_items:
+#    - "ubuntu-default-settings"
+#    - "ubuntu-desktop"
+#  ignore_errors: yes 

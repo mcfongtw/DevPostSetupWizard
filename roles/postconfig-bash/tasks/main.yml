@@ -1,0 +1,69 @@
+# file: preconfig-bash/tasks/main.yml
+
+- name: "{{ansible_distribution}} | Copy the rest of bash script to /root"
+  copy:
+    src: "{{ item }}"
+    dest: /root
+    owner: root
+    mode: "u=rw,g=r,o=r"
+  with_fileglob:
+    - files/.*
+  become: yes
+  tags:
+    - installation
+    - configuration
+
+- name: "{{ ansible_distribution}} | Copy the rest of bash script to /home/{{ username }}"
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "u=rw,g=r,o=r"
+  with_items:
+    - { src: ".bashrc.j2", dest: "/home/{{ username }}/.bashrc" }
+    - { src: ".bash_aliases", dest: "/home/{{ username }}/.bash_aliases" }
+    - { src: ".bash.inc.sdkman", dest: "/home/{{ username }}/.bash.inc.sdkman" }
+    - { src: ".bash.inc.golang", dest: "/home/{{ username }}/.bash.inc.golang" }
+  become: yes
+  tags:
+    - installation
+    - configuration
+
+- name: laptop | Copy bash.* to /etc/
+  template: src={{item.src}} dest={{item.dest}}
+  with_items:
+    - { src: '../templates/bash.bashrc', dest: '/etc/bash.bashrc' }
+    - { src: '../templates/bash.lib.switch_ptr_dev', dest: '/etc/bash.lib.switch_ptr_dev' }
+  become: yes
+  when: is_laptop is defined and is_laptop == true
+  tags:
+    - installation
+    - configuration
+
+- name: "{{ ansible_distribution }} | Check if templates dir exists"
+  stat: 
+    path: "{{ DEV_GIT_PATH }}/workspace_infra/InfraPostInstaller/roles/postconfig-bash/templates/"
+  register: check_infra_repo_installed
+  tags:
+    - always
+
+- name: "{{ ansible_distribution }} | Skip if {{ DEV_GIT_PATH }}/workspace_infra/InfraPostInstaller/ does not exist"
+  debug: 
+    msg: InfraPostInstaller repo does not exist.
+  when: check_infra_repo_installed.stat.exists == false
+  tags:
+    - always
+
+- name: "{{ ansible_distribution }} | Copy bash_alias "
+  cron: 
+    name: "Copy bash configuration" 
+    user: "{{ username }}" 
+    hour: "*/2"
+    job: "cp ~/.bash_aliases {{ DEV_GIT_PATH }}/workspace_infra/InfraPostInstaller/roles/postconfig-bash/templates/.bash_aliases"
+    state: present
+    disabled: no
+  when: check_infra_repo_installed.stat.exists == true
+  tags:
+    - installation
+    - configuration

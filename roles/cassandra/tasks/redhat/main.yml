@@ -1,0 +1,31 @@
+#- name: " {{ ansible_distribution }} | Make sure the cassandra packages are installed"
+#  yum:
+#    name: "{{item}}"
+#    state: present
+#  with_items: "{{ target_packages }}"
+#  become: yes
+
+- name: " {{ ansible_distribution }} | Make sure the cassandra packages are installed"
+  yum:
+    name: "http://apache.stu.edu.tw/cassandra/redhat/30x/cassandra-3.0.13-1.noarch.rpm"
+    state: present
+  become: yes
+  tags:
+    - installation
+    - update
+
+- name: " {{ ansible_distribution }} | Make sure the cassandra service starts after reboots"
+  shell: chkconfig cassandra on
+  become: yes
+  tags:
+    - installation
+    - service-enabled
+
+- name: " {{ ansible_distribution }} | Make sure the cassandra service is started"
+  service:
+    name: cassandra
+    state: started          
+  become: yes
+  tags:
+    - installation
+    - service-started

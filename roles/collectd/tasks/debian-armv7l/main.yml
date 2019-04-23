@@ -1,0 +1,52 @@
+- name: raspbian | mkdir several dirs
+  file: path={{ item }} state=directory owner=root group=root mode=775 recurse=yes
+  with_items:
+    # For collectd configurations
+    - /etc/collectd/collectd.conf.d/
+    # For cloning MkConfig
+    - /data/tools/collectd
+  become: yes
+  tags:
+    - installation
+
+- name: raspbian | Set /etc/collectd/collectd.conf
+  become: yes
+  template: src=../templates/collectd.conf dest=/etc/collectd/collectd.conf
+  tags:
+    - installation
+    - configuration
+
+- name: raspbian | Set /etc/collectd/collectd.conf.d/influxdb.conf
+  become: yes
+  template: src=../templates/influxdb.conf dest=/etc/collectd/collectd.conf.d/influxdb.conf
+  tags:
+    - installation
+    - configuration
+
+- name: raspbian | Copy the rest of collectd configurations to /etc/collectd
+  copy:
+    src: "{{ item }}"
+    dest: /etc/collectd/collectd.conf.d/
+    owner: root
+    mode: 644
+  with_fileglob:
+    - files/etc/collectd/collectd.conf.d/*
+  become: yes
+  tags:
+    - installation
+    - configuration
+
+- name: raspbian  | Make sure the collectd packages are installed
+  apt:
+    pkg: "{{item}}"
+    state: present
+  with_items: "{{ target_packages }}"
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: "raspbian | Include setup-mkconfig.yml"
+  include: setup-mkconfig.yml
+  when: auto_generate_collectd_jmx_conf is defined and auto_generate_collectd_jmx_conf == true
+

@@ -1,0 +1,5 @@
+DEV_PATH : /data/dev
+
+DEV_CONF_PATH : "{{ DEV_PATH }}/conf"
+
+DEV_GIT_PATH : "{{ DEV_PATH }}/git"

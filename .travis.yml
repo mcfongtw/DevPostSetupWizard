@@ -1,0 +1,22 @@
+sudo: required
+
+dist: xenial
+
+language: python
+python:
+  - "3.5"
+    
+before_script:
+  - sudo apt-get install -y software-properties-common
+  - sudo apt-add-repository ppa:ansible/ansible -y
+  - sudo apt-get update
+  - sudo apt-get install -y ansible
+
+script:
+  # Configure test script so we can run extra tests after playbook is run.
+  # Run tests.
+  - cd tests/
+  - travis_wait 10 ansible-playbook -vv test-fundemental-roles.yml 
+  - travis_wait 10 ansible-playbook -vv test-role-openjdk.yml 
+  - travis_wait 10 ansible-playbook -vv test-role-vim.yml 
+  - travis_wait 10 ansible-playbook -vv test-role-tmux.yml 

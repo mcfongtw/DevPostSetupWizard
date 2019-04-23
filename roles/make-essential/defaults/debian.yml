@@ -1,0 +1,13 @@
+# file: make-essential/defaults/Debian.yml
+
+target_packages:
+   - autoconf
+   - binutils-doc
+   - bison
+   - build-essential
+   - flex
+   - gettext
+   - ncurses-dev
+   - make
+   - cmake
+

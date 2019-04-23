@@ -1,0 +1,40 @@
+# Set the hostname for the machine
+#   
+
+# Set the hostname for /etc/hostname
+- name: "{{ ansible_distribution }} | Set the hostname"
+  become: yes
+  command: hostnamectl set-hostname "{{ hostname }}"
+  when: hostname is defined
+  tags:
+    - installation
+    - configuration
+
+# Set the hostname for /etc/hosts
+- name: "{{ ansible_distribution}} | Generate /etc/hosts"
+  template:
+    src=etc/hosts.j2
+    dest=/etc/hosts
+  become: yes
+  when: hostname is defined
+  tags:
+    - installation
+    - configuration
+
+- name: "{{ ansible_distribution }} | Retrieve output of `hostname` "    
+  command: "hostname"
+  register: hostname_output
+  tags:
+    - always
+
+- name : "{{ ansible_distribution }} | Set hostname var to the latest "
+  set_fact:
+    hostname: "{{ hostname_output. stdout }}"
+  tags:
+    - always
+
+- name : "{{ ansible_distribution }} | Print out hostname"
+  debug:
+    var: hostname
+  tags:
+    - always

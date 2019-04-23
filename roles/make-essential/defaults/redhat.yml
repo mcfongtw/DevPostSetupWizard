@@ -1,0 +1,14 @@
+# file: make-essential/defaults/redhat.yml
+
+target_packages:
+ - autoconf
+ - bison
+ - flex
+ - gettext
+ - kernel-devel
+ - make
+ - cmake
+ - m4
+ - ncurses-devel
+
+

@@ -1,0 +1,19 @@
+- name: " {{ ansible_distribution }} | Make sure the debug-network packages are installed"
+  yum:
+    name: "{{item}}"
+    state: present
+  with_items: "{{ target_packages }}"
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }} | Configurer git as developer '{{ username }}"
+  shell: "{{ item }}"
+  with_items: 
+    - git config --global user.email "mcfong.open@gmail.com"
+    - git config --global user.name "Michael Fong"
+    - git config --global core.editor vim
+  tags:
+    - installation
+    - configuration

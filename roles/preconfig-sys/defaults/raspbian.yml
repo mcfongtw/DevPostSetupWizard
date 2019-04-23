@@ -1,0 +1,18 @@
+---
+wifi_country: "US"
+locale: "en_US.UTF-8"
+keyboard: "pc104"
+keyboard_layout: "us"
+timezone: Asia/Taipei
+locale_options:
+      # Disable Default (GB) Locale  
+    - {
+            regexp: "^#?en_GB.UTF-8 UTF-8", 
+            line: "# en_GB.UTF-8 UTF-8"
+      }
+      # Enable US Locale
+    - {
+            regexp: "^#?en_US.UTF-8 UTF-8",  
+            line: "en_US.UTF-8 UTF-8"
+      }
+

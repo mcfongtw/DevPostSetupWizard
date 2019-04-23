@@ -1,0 +1,118 @@
+# System-wide .bashrc library file for switching USB mouse or Touchpad
+
+
+# Disable touchpad if USB mouse is plugged in. 
+#
+
+get_ptr_dev_id() {
+	local pattern=""
+	if [ -z "$1" ]
+	then
+		echo 'ERROR : pattern not provided'
+		return 249
+	else
+		pattern=$1
+	fi
+        local dev_id=`xinput | grep 'pointer' | grep -i "$pattern" | awk 'match($0,/id=[0-9]+/){print substr($0,RSTART,RLENGTH)}' | awk -F "=" '{print $2}'`
+
+	if [ -z "$dev_id" ]
+	then
+		#empty
+		echo "ERROR : device [$pattern] not found" >&2
+		return 255
+	elif ! [[ $dev_id =~ ^[0-9]+$ ]]
+	then 
+		#not a number
+		echo "ERROR : device [$pattern] w/ illegal result: $dev_id" >&2
+		return 254
+	else
+        	return $dev_id
+	fi
+}
+
+get_status_by_dev_id() {
+	local dev_id=0
+	if [ -z "$1" ]
+	then
+		echo 'ERROR : dev_id not provided'
+		return 249
+	else
+		dev_id=$1
+	fi
+
+	#xargs trim the whitespace
+	local dev_status=`xinput --list-props $dev_id | grep 'Device Enabled' | awk -F":" '{print $2}' | xargs`
+
+	if [ -z "$dev_status" ]
+        then
+                #empty
+                echo "ERROR : dev [$dev_id] not found!" >&2
+                return 255 
+        elif ! [[ $dev_status =~ ^[0-9]+$ ]]
+        then 
+                #not a number
+                echo "ERROR : dev [$dev_id] w/ illegal result: $dev_status" >&2
+                return 254
+        else
+                return $dev_status
+        fi
+
+}
+
+disable_device() {
+	local dev_name=$1
+	get_ptr_dev_id $dev_name
+	local dev_id=$?
+
+	xinput set-prop $dev_id "Device Enabled" 0
+
+	get_status_by_dev_id $dev_id
+	local dev_status=$?
+
+	echo "DISABLE [$dev_name] with id=[$dev_id], status=[$dev_status]"
+}
+
+enable_device() {
+	local dev_name=$1
+	get_ptr_dev_id $dev_name
+	local dev_id=$?
+
+	xinput set-prop $dev_id "Device Enabled" 1
+
+	get_status_by_dev_id $dev_id
+	local dev_status=$?
+
+	echo "ENABLE [$dev_name] with id=[$dev_id], status=[$dev_status]"
+}
+
+select_mouse_over_touchpad() {
+	local mouse_dev_name=$1
+	local touchpad_dev_name=$2
+	
+	get_ptr_dev_id "$mouse_dev_name"
+	local mouse_dev_id=$?
+
+	if [ "$mouse_dev_id" -ge 250 ]
+	then
+		echo "USB Mouse not found, enabling touchpad ..."
+		enable_device "$touchpad_dev_name"
+	else
+		get_status_by_dev_id $mouse_dev_id
+		local mouse_dev_status=$?
+		echo "Mouse pointer dev id=$mouse_dev_id status=$mouse_dev_status"
+
+		if [ "$mouse_dev_status" -eq 1 ]
+		then
+			echo "USB mouse located, disabling touchpad ..."
+			disable_device "$touchpad_dev_name"
+		fi
+	fi
+}
+
+
+echo "--->bash.lib.switch_ptr_dev"
+
+#Execute custom scripts
+select_mouse_over_touchpad "Logitech USB Receiver" "{{ touchpad_dev_name }}"
+
+echo "<---bash.lib.switch_ptr_dev"

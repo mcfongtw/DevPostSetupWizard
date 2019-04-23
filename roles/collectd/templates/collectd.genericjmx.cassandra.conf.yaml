@@ -1,0 +1,161 @@
+progName : 'Cassandra'
+hostAddr : '{{ ansible_default_ipv4.address }}'
+hostPort : '7199'
+fqdn : '{{ hostname }}'
+progPrefix : "CASSANDRA_"
+progVer : '3.10+'
+_def_tps_internals: ['CompactionExecutor', 'AntiEntropyStage', 'GossipStage', 'MemtableFlushWriter', 'MemtablePostFlush', 'HintsDispatcher']
+_def_tps_requests: ['ReadStage', 'MutationStage', 'ReadRepairStage', 'RequestResponseStage']
+_def_tps_dropped: ['MUTATION', 'RANGE_SLICE', 'READ', 'READ_REPAIR', 'REQUEST_RESPONSE', 'HINT']
+
+{% raw %}        
+collections:
+- name : JvmMemory
+- name : NativeMemory_NioDirectMemory
+- name : JvmThread
+- name : GC_ParNew
+- name : GC_ConcurrentMarkSweep
+- name : System
+
+- name : TPStats_Internal_{{ item }}_CompletedTasks
+  secOrderSubstitution: _def_tps_internals
+- name : TPStats_Internal_{{ item }}_PendingTasks
+  secOrderSubstitution: _def_tps_internals
+- name : TPStats_Internal_{{ item }}_TotalBlockedTasks
+  secOrderSubstitution: _def_tps_internals
+
+- name : TPStats_Request_{{ item }}_CompletedTasks
+  secOrderSubstitution: _def_tps_requests
+- name : TPStats_Request_{{ item }}_PendingTasks
+  secOrderSubstitution: _def_tps_requests
+- name : TPStats_Request_{{ item }}_TotalBlockedTasks
+  secOrderSubstitution: _def_tps_requests
+
+- name : TPStats_Transport_NativeTransportRequests_CompletedTasks
+- name : TPStats_Transport_NativeTransportRequests_PendingTasks
+- name : TPStats_Transport_NativeTransportRequests_TotalBlockedTasks
+
+- name : TPStats_Dropped_{{ item }}_CrossNodeDroppedLatency
+  secOrderSubstitution: _def_tps_dropped
+- name : TPStats_Dropped_{{ item }}_InternalDroppedLatency
+  secOrderSubstitution: _def_tps_dropped
+
+- name : StorageService_Exceptions
+- name : StorageService_Load
+
+- name : Compaction_BytesCompacted
+
+mbeans:
+- name : TPStats_Internal_{{ item }}_CompletedTasks
+  objectName: org.apache.cassandra.metrics:type=ThreadPools,path=internal,scope={{ item }},name=CompletedTasks
+  InstancePrefix : TPStats_Internal_{{ item }}
+  secOrderSubstitution: _def_tps_internals
+  attributes:
+   - Attribute : Value
+     InstancePrefix : CompletedTasks
+     Type : counter
+- name : TPStats_Internal_{{ item }}_PendingTasks
+  objectName: org.apache.cassandra.metrics:type=ThreadPools,path=internal,scope={{ item }},name=PendingTasks
+  InstancePrefix : TPStats_Internal_{{ item }}
+  secOrderSubstitution: _def_tps_internals
+  attributes:
+   - Attribute : Value
+     InstancePrefix : PendingTasks
+     Type : counter
+- name : TPStats_Internal_{{ item }}_TotalBlockedTasks
+  objectName: org.apache.cassandra.metrics:type=ThreadPools,path=internal,scope={{ item }},name=TotalBlockedTasks
+  InstancePrefix : TPStats_Internal_{{ item }}
+  secOrderSubstitution: _def_tps_internals
+  attributes:
+   - Attribute : Count
+     InstancePrefix : TotalBlockedTasks
+     Type : counter
+
+- name : TPStats_Request_{{ item }}_CompletedTasks
+  objectName: org.apache.cassandra.metrics:type=ThreadPools,path=request,scope={{ item }},name=CompletedTasks
+  InstancePrefix : TPStats_Request_{{ item }}
+  secOrderSubstitution: _def_tps_requests
+  attributes:
+   - Attribute : Value
+     InstancePrefix : CompletedTasks
+     Type : counter
+- name : TPStats_Request_{{ item }}_PendingTasks
+  objectName: org.apache.cassandra.metrics:type=ThreadPools,path=request,scope={{ item }},name=PendingTasks
+  InstancePrefix : TPStats_Request_{{ item }}
+  secOrderSubstitution: _def_tps_requests
+  attributes:
+   - Attribute : Value
+     InstancePrefix : PendingTasks
+     Type : counter
+- name : TPStats_Request_{{ item }}_TotalBlockedTasks
+  objectName: org.apache.cassandra.metrics:type=ThreadPools,path=request,scope={{ item }},name=TotalBlockedTasks
+  InstancePrefix : TPStats_Request_{{ item }}
+  secOrderSubstitution: _def_tps_requests
+  attributes:
+   - Attribute : Count
+     InstancePrefix : TotalBlockedTasks
+     Type : counter
+
+- name : TPStats_Transport_NativeTransportRequests_CompletedTasks
+  objectName: org.apache.cassandra.metrics:type=ThreadPools,path=transport,scope=Native-Transport-Requests,name=CompletedTasks
+  InstancePrefix : TPStats_Transport_NativeTransportRequests
+  attributes:
+   - Attribute : Value
+     InstancePrefix : CompletedTasks
+     Type : counter
+- name : TPStats_Transport_NativeTransportRequests_PendingTasks
+  objectName: org.apache.cassandra.metrics:type=ThreadPools,path=transport,scope=Native-Transport-Requests,name=PendingTasks
+  InstancePrefix : TPStats_Transport_NativeTransportRequests
+  attributes:
+   - Attribute : Value
+     InstancePrefix : PendingTasks
+     Type : counter
+- name : TPStats_Transport_NativeTransportRequests_TotalBlockedTasks
+  objectName: org.apache.cassandra.metrics:type=ThreadPools,path=transport,scope=Native-Transport-Requests,name=TotalBlockedTasks
+  InstancePrefix : TPStats_Transport_NativeTransportRequests
+  attributes:
+   - Attribute : Count
+     InstancePrefix : TotalBlockedTasks
+     Type : counter
+
+- name : TPStats_Dropped_{{ item }}_CrossNodeDroppedLatency
+  objectName: org.apache.cassandra.metrics:type=DroppedMessage,scope={{ item }},name=CrossNodeDroppedLatency
+  InstancePrefix : TPStats_Dropped_{{ item }}
+  secOrderSubstitution: _def_tps_dropped
+  attributes:
+   - Attribute : Count
+     InstancePrefix : CrossNodeDroppedLatency
+     Type : counter
+- name : TPStats_Dropped_{{ item }}_InternalDroppedLatency
+  objectName: org.apache.cassandra.metrics:type=DroppedMessage,scope={{ item }},name=InternalDroppedLatency
+  InstancePrefix : TPStats_Dropped_{{ item }}
+  secOrderSubstitution: _def_tps_dropped
+  attributes:
+   - Attribute : Count
+     InstancePrefix : InternalDroppedLatency
+     Type : counter
+
+- name : StorageService_Exceptions
+  objectName: org.apache.cassandra.metrics:type=Storage,name=Exceptions
+  InstancePrefix : StorageService
+  attributes:
+   - Attribute : Count
+     InstancePrefix : Exception
+     Type : counter
+- name : StorageService_Load
+  objectName: org.apache.cassandra.metrics:type=Storage,name=Load
+  InstancePrefix : StorageService
+  attributes:
+   - Attribute : Count
+     InstancePrefix : Load
+     Type : counter
+
+
+- name : Compaction_BytesCompacted
+  objectName: org.apache.cassandra.metrics:type=Compaction,name=BytesCompacted
+  InstancePrefix : Compaction
+  attributes:
+   - Attribute : Count
+     InstancePrefix : BytesCompacted
+     Type : counter
+{% endraw %}        

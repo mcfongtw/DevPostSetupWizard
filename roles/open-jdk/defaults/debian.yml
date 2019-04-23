@@ -1,0 +1,5 @@
+target_packages:
+   - openjdk-7-jdk
+
+dbg_sym_packages:
+   - openjdk-7-dbg

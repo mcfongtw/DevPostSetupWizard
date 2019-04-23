@@ -1,0 +1,11 @@
+[elassandra_latest]
+name=Elassandra repository
+baseurl=https://packagecloud.io/elassandra/latest/el/7/$basearch
+type=rpm-md
+repo_gpgcheck=1
+gpgcheck=0
+enabled=1
+gpgkey=https://packagecloud.io/elassandra/latest/gpgkey
+autorefresh=1
+sslverify=1
+sslcacert=/etc/pki/tls/certs/ca-bundle.crt

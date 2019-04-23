@@ -1,0 +1,15 @@
+- name: reboot
+  shell: sleep 30 && shutdown -r now 'Ansible rebooted for pakcage setup completed'
+  async: 1
+  poll: 0
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: wait for reboot to finish
+  local_action: wait_for host={{ ansible_host }} state=started port=22 delay=50 timeout=120
+  become: yes
+  tags:
+    - installation
+    - upgrade

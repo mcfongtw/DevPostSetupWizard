@@ -1,0 +1,8 @@
+# file: vim/defaults/Debian.yml
+
+target_packages:
+   - vim-nox-py2 
+   - libxml2-dev 
+   - libxslt-dev
+
+conf_vim_home: "{{ DEV_CONF_PATH }}/vim" 

@@ -1,0 +1,6 @@
+
+target_packages:
+   - vim 
+   - libxml2-devel 
+   - libxslt-devel
+

@@ -1,0 +1,14 @@
+- name: "{{ ansible_distribution }} | Check if /tmp/cassandra-[version]/ exists"
+  stat: path="/tmp/{{cassandra_file_prefix}}/"
+  become: yes 
+  register: temp_cassandra_dir 
+
+- name: "{{ ansible_distribution }} | Cassandra has been downloaded and configured"
+  debug:
+    msg: Cassandra has been installed.
+  when: temp_cassandra_dir.stat.exists == true
+
+- name: "{{ ansible_distribution }} | Download the cassandra-bin.tar.gz from http"
+  include: install-cas.yml
+  when: temp_cassandra_dir.stat.exists == false
+  

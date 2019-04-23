@@ -1,0 +1,6 @@
+# file: gnome/defaults/redhat.yml
+
+target_packages:
+ - "@^GNOME Desktop" 
+ - "@^Graphical Administration Tools"
+

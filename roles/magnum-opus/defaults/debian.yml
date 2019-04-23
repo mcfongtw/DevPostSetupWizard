@@ -1,0 +1,6 @@
+# file: magnum-opus/defaults/Debian.yml
+
+git_server_url: '192.168.2.102:10081'
+
+target_repositories:
+  - {url: 'http://{{ git_server_url }}/HomeInfrastructure/InfraPostInstaller.git', dest:'/data/dev/git/workspace_infra/'}

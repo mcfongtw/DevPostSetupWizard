@@ -1,0 +1,38 @@
+- name: "{{ ansible_distribution }} | Check if kernel-debug is available via yum"
+  yum:
+    list: "kernel-debuginfo-{{ansible_kernel}}"
+  register: check_yum_available
+  tags:
+    - installation
+    - upgrade
+
+- name: "{{ ansible_distribution }} | debug check_yum_available"
+  debug:
+    msg: "{{check_yum_available}}"
+  tags:
+    - always
+
+- name: "{{ ansible_distribution }} | Install package via yum"
+  yum:
+    enablerepo: base-debuginfo
+    pkg: "{{item}}"
+    state: present
+  with_items: "{{ dbg_sym_packages }}"
+  become: yes 
+  when: (check_yum_available.results|length == 1) or (check_yum_available.results[1].yumstate != 'available') 
+  tags:
+    - installation
+    - upgrade
+
+- name: "{{ ansible_distribution }} | Install package via rpm file"
+  yum:
+    name: "{{ item }}"
+    state: present
+    with_items:
+      - "http://debuginfo.centos.org/7/x86_64/kernel-debuginfo-{{ansible_kernel}}.rpm"
+      - "http://debuginfo.centos.org/7/x86_64/kernel-debuginfo-common-{{ansible_kernel}}.rpm"
+  when: (check_yum_available.results|length == 0)
+  tags:
+    - installation
+    - upgrade
+

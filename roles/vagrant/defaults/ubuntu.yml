@@ -1,0 +1,11 @@
+# file: debug-network/defaults/Debian.yml
+
+vagrant_version: 2.1.1
+vagrant_download_url: "https://releases.hashicorp.com/vagrant/{{ vagrant_version }}/vagrant_{{ vagrant_version }}_x86_64.deb"
+
+vbox_license_checksum: b674970f720eb020ad18926a9268607089cc1703908696d24a04aa870f34c8e8
+
+vbox_machine_folder: "/data/dev/virtualbox/vm"
+
+target_packages:
+  - virtualbox-5.1

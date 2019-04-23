@@ -1,0 +1,55 @@
+- name: "ubuntu | Download and install the public signing key"
+  apt_key:
+    url: "https://ftp-master.debian.org/keys/archive-key-6.0.asc"
+    state: present
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }} | Make sure the prerequistis packages are installed"
+  apt:
+    pkg: "{{item}}"
+    state: present
+  with_items: 
+    - apt-transport-https
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: "ubuntu | Enable Elassandra debian repository"
+  become: yes 
+  shell: | 
+    echo 'deb https://packagecloud.io/elassandra/latest/debian jessie main' > /etc/apt/sources.list.d/elassandra.sources.list
+  tags:
+    - installation
+    - upgrade
+
+- name: " ubuntu | Import the debug symbol archive signing key from the ubuntu server"
+  become: yes
+  apt_key:
+    keyserver:  pool.sks-keyservers.net 
+    id: A278B781FE4B2BDA
+  #shell: apt-key adv --keyserver pool.sks-keyservers.net --recv-key A278B781FE4B2BDA
+  tags:
+    - installation
+    - upgrade
+
+- name: " ubuntu | Update apt packages"
+  become: yes 
+  apt: 
+    update_cache=yes
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }} | Make sure the elassandra packages are installed"
+  apt:
+    pkg: "{{item}}"
+    state: present
+  with_items: "{{ target_packages }}"
+  become: yes
+  tags:
+    - installation
+    - upgrade

@@ -1,0 +1,7 @@
+# file: debug-network/defaults/Debian.yml
+
+vagrant_version: 1.9.5
+vagrant_download_url: "https://releases.hashicorp.com/vagrant/{{ vagrant_version }}/vagrant_{{ vagrant_version }}_x86_64.deb"
+
+target_packages:
+  - virtualbox

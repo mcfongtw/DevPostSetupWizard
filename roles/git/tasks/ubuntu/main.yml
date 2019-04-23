@@ -1,0 +1,45 @@
+- name: " {{ ansible_distribution }} | Make sure the git packages are installed"
+  apt:
+    pkg: "{{item}}"
+    state: present
+  with_items: "{{ target_packages }}"
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }} | Configurer git as developer '{{ username }}"
+  shell: "{{ item }}"
+  with_items: 
+    - git config --global user.email "mcfong.open@gmail.com"
+    - git config --global user.name "Michael Fong"
+    - git config --global core.editor vim
+  tags:
+    - installation
+    - configuration
+
+- name : " {{ansible_distribution }} | Copy github account public / private key"
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: 0600
+  with_items:
+    - { src: "id_rsa_github", dest: "/home/{{ username }}/.ssh/id_rsa_github" }
+    - { src: "id_rsa_github.pub", dest: "/home/{{ username }}/.ssh/id_rsa_github.pub" }
+  tags:
+    - installation
+    - configuration
+
+#TODO: consider to move the ssh_config in a different role,i.e. dev-ssh
+- name : " {{ansible_distribution }} | Set the github.com defaults to ssh_config"
+  copy:
+    src: "ssh_config"
+    dest: "/etc/ssh/ssh_config"
+    owner: "root"
+    group: "root"
+    mode: 0644
+  become: yes
+  tags:
+    - installation

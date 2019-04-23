@@ -1,0 +1,7 @@
+---
+- name: "{{ ansible_distribution }} | include swap tasks"
+  include: ../swap.yml
+
+- name: "{{ ansible_distribution }} | reboot"
+  command: "echo 'Trigger [changed]'"
+  notify: reboot

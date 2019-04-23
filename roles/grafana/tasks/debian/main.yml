@@ -1,0 +1,46 @@
+- name: "{{ ansible_distribution }} | Make sure the prereq packages are installed"
+  apt:
+    pkg: "{{item}}"
+    state: present
+  with_items: "{{ prereq_packages }}"
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }} | Enable grafana repository"
+  become: yes 
+  shell: | 
+    echo 'deb https://packagecloud.io/grafana/stable/debian/ jessie main' > /etc/apt/sources.list.d/grafana.list
+  tags:
+    - installation
+
+- name: " {{ ansible_distribution }} | Update apt packages"
+  become: yes 
+  apt: 
+    update_cache=yes
+  tags:
+    - installation
+    - upgrade
+    
+- name: "{{ ansible_distribution }} | Make sure the grafana packages are installed"
+  apt:
+    pkg: "{{item}}"
+    state: present
+    force: yes
+  with_items: "{{ target_packages }}"
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }} | Start and enable grafana"
+  service:
+    name: grafana-server
+    state: started
+    enabled: yes
+  become: yes 
+  tags:
+    - installation
+    - service-started
+    - service-enabled

@@ -1,0 +1,71 @@
+session_name: RESUME
+start_directory: /data/dev/git/workspace_gitlab/PersonalPortfolio
+suppress_history: false        
+windows:
+  - window_name: Interview
+    window_index: 1
+    layout: main-vertical
+    start_directory: /data/dev/git/workspace_gitlab/PersonalPortfolio/interview
+    options:
+      main-pane-width: 100
+    panes:
+      - shell_command: 
+          - vim note.md \
+        focus: true
+      - shell_command: 
+          - make
+      - shell_command: 
+          - evince note.pdf \
+  - window_name: Resume
+    window_index: 2
+    focus: true
+    layout: main-vertical
+    start_directory: /data/dev/git/workspace_gitlab/PersonalPortfolio/resume
+    options:
+      main-pane-width: 100
+    panes:
+      - shell_command: 
+          - vim resume.tex \
+        focus: true
+      - shell_command: 
+          - make
+      - shell_command: 
+          - evince resume.pdf \
+  - window_name: Letter
+    window_index: 3
+    layout: main-vertical
+    start_directory: /data/dev/git/workspace_gitlab/PersonalPortfolio/cover-letter          
+    options:
+      main-pane-width: 100
+    panes:
+      - shell_command: 
+          - vim coverletter.tex \
+        focus: true
+      - shell_command: 
+          - make
+      - shell_command: 
+          - evince coverletter.pdf \
+  - window_name: Ref
+    window_index: 4
+    layout: main-vertical
+    start_directory: /data/dev/git/workspace_gitlab/PersonalPortfolio/references           
+    options:
+      main-pane-width: 100
+    panes:
+      - shell_command: 
+          - vim references.tex \
+        focus: true
+      - shell_command: 
+          - xelatex references.tex
+      - shell_command: 
+          - evince references.pdf \
+  - window_name: root
+    window_index: 5
+    panes:
+      - shell_command: 
+  - window_name: git
+    window_index: 6
+    layout: main-vertical
+    panes:
+      - shell_command: git status
+      - shell_command: git.log

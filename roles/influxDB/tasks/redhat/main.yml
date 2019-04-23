@@ -1,0 +1,35 @@
+---
+- name: "{{ ansible_distribution }} | Add influxdb repository via yum"
+  shell: cat <<EOF | sudo tee /etc/yum.repos.d/influxdb.repo
+[influxdb]
+name = InfluxDB Repository - RHEL \$releasever
+baseurl = https://repos.influxdata.com/rhel/\$releasever/\$basearch/stable
+enabled = 1
+gpgcheck = 1
+gpgkey = https://repos.influxdata.com/influxdb.key
+EOF
+  tags:
+    - installation
+    - upgrade
+
+- name: "{{ ansible_distribution }} | Make sure the dev-latex packages are installed"
+  yum:
+    name: "{{item}}"
+    state: present
+  with_items: "{{ target_packages }}"
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }} | Start and enable influxDB"
+  service:
+    name: influxdb
+    state: started
+    enabled: yes
+  become: yes 
+  tags:
+    - installation
+    - service-started
+    - service-enabled
+

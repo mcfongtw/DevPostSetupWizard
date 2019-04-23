@@ -1,0 +1,30 @@
+---
+- name: redhat | enable Debuginfo repository
+  lineinfile:
+    path: /etc/yum.repos.d/CentOS-Debuginfo.repo
+    regexp: 'enabled=0'
+    line: 'enabled=1'
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: "redhat | Run yum update_cache"
+  become: yes
+  command : "{{ item }}" 
+  with_items:
+    - yum makecache
+  tags:
+    - installation
+    - upgrade
+
+- name: "redhat | Upgrade (safe) packages via yum"
+  become: yes 
+  yum:
+    name: '*'
+    state: latest 
+  when: upgrade_opt is defined and upgrade_opt=='safe'
+  tags:
+    - installation
+    - upgrade
+  

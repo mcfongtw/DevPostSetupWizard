@@ -1,0 +1,20 @@
+- name: " {{ ansible_distribution }} | Make sure the open-jdk packages are installed"
+  apt:
+    pkg: "{{item}}"
+    state: present
+  with_items: "{{ target_packages }}"
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }} | Make sure the open-jdk debug-symbol packages are installed"
+  apt:
+    pkg: "{{item}}"
+    state: present
+  with_items: "{{ dbg_sym_packages }}"
+  become: yes
+  when: enable_debug_symbol and dbg_sym_packages
+  tags:
+    - installation
+    - upgrade

@@ -1,0 +1,28 @@
+# Run apt-get related 
+#   
+
+- name: " {{ansible_distribution}} | Update apt packages"
+  become: yes
+  apt: 
+    update_cache=yes
+  tags:
+    - installation
+    - configuration
+
+- name: "debian | Upgrade (dist) packages via apt"
+  become: yes
+  apt: 
+    upgrade=dist
+  when: upgrade_opt is defined and upgrade_opt=='dist'
+  tags:
+    - installation
+    - configuration
+
+- name: "debian | Upgrade (safe) packages via apt"
+  become: yes
+  apt: 
+    upgrade=safe
+  when: upgrade_opt is defined and upgrade_opt=='safe'
+  tags:
+    - installation
+    - configuration

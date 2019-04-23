@@ -1,0 +1,41 @@
+session_name: FLINK
+start_directory: /data/dev/git/workspace_mcfongtw/flink/
+suppress_history: false        
+windows:
+  - window_name: git
+    window_index: 1
+    layout: main-vertical
+    focus: true
+    panes:
+      - shell_command: git status
+      - shell_command: git.log
+  - window_name: mvn
+    window_index: 2
+    panes:
+      - shell_command: mvn clean package -DskipTests=true \
+      - shell_command: mvn clean install -DskipTests=true \
+  - window_name: root
+    window_index: 3
+    panes:
+      - shell_command: 
+  - window_name: job
+    window_index: 4
+    start_directory: /data/dev/git/workspace_mcfongtw/flink/flink-dist/target/flink-1.5-SNAPSHOT-bin/flink-1.5-SNAPSHOT/
+    layout: main-horizontal
+    options:
+      main-pane-height: 25
+    panes:
+      - shell_command: 
+          - tail -f log/flink-*.log log/flink-*.out
+      - shell_command: bin/flink run path-to-job-in-jar --args \ 
+      - shell_command: 
+          - bin/start-local.sh
+          - bin/stop-local.sh \
+  - window_name: docs
+    window_index: 5
+    layout: main-vertical
+    start_directory: /data/dev/git/workspace_mcfongtw/flink/docs/
+    panes:
+      - shell_command: 
+          - docker/run.sh \
+      - shell_command: 

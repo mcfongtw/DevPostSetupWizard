@@ -1,0 +1,31 @@
+- name: " {{ ansible_distribution }} | Make sure the ntp packages are installed"
+  apt:
+    pkg: "{{item}}"
+    state: present
+  with_items: "{{ target_packages }}"
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }} | Copy /etc/ntp.conf"
+  copy:
+    src: ntp.conf
+    dest: /etc/ntp.conf
+    mode: "u=rw,g=r,o=r"
+  become: yes 
+  tags:
+    - installation
+    - configuration
+
+- name: " {{ ansible_distribution }} | start and enable NTP"
+  service:
+    name: ntp
+    state: started
+    enabled: yes
+  become: yes 
+  tags:
+    - installation
+    - service-started
+    - service-enabled
+

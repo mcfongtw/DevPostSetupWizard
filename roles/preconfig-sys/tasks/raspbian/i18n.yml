@@ -1,0 +1,63 @@
+# Set Internationalization Options for the Pi
+# Depends on:
+#   vars:
+#       locale: "en_US.UTF-8"
+#       keyboard: "pc104"
+#       keyboard_layout: "us"
+#       timezone: America/Los_Angeles
+#       locale_options:
+#       # Disable Default (GB) Locale
+#       - regexp: "^#?en_GB.UTF-8 UTF-8"
+#         line: "# en_GB.UTF-8 UTF-8"
+#       # Enable US Locale
+#       - regexp: "^#?en_US.UTF-8 UTF-8"
+#         line: "en_US.UTF-8 UTF-8"
+#   handlers:
+#       handlers/reboot.yml
+#       handlers/tzdata.yml
+#   templates:
+#       templates/timezone
+#       templates/keyboard
+#       
+
+- name: raspbian | Configure option values in /etc/locale.gen file.
+  become: yes
+  lineinfile:
+    dest: /etc/locale.gen
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    insertafter: EOF
+    state: present
+  with_items: "{{ locale_options }}"
+  tags:
+    - installation
+
+- name: raspbian | Generate Locale
+  become: yes
+  command: locale-gen {{ locale }}
+  tags:
+    - installation
+
+- name: raspbian | Set Locale
+  become: yes
+  command: update-locale LC_ALL={{ locale }} LANG={{ locale }}
+  tags:
+    - installation
+
+- name: raspbian | set /etc/timezone
+  become: yes
+  template: src=../templates/raspbian/timezone dest=/etc/timezone
+  tags:
+    - installation
+
+- name: raspbian | update tzdata
+  become: true
+  command: dpkg-reconfigure --frontend noninteractive tzdata
+  tags:
+    - installation
+
+- name: raspbian | set /etc/default/keyboard
+  become: yes
+  template: src=../templates/raspbian/keyboard dest=/etc/default/keyboard
+  tags:
+    - installation

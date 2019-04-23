@@ -1,0 +1,49 @@
+---
+- name: "{{ ansible_distribution }} | Ensure that Python2 packages are installed"
+  apt:
+    pkg: "{{item}}"
+    state: present
+    update_cache: yes 
+    cache_valid_time: 1800
+  become: yes    
+  with_items: "{{ python_apt_packages_2 }}"
+  when: python_install_2
+  tags:
+    - installation
+    - upgrade
+
+- name: "{{ ansible_distribution }} | Ensure that Python3 packages are installed"
+  apt:
+    pkg: "{{item}}"
+    state: present
+    update_cache: yes 
+    cache_valid_time: 1800
+  become: yes    
+  with_items: "{{ python_apt_packages_3 }}"
+  when: python_install_3
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }} | Make sure the python2 debug-symbol packages are installed"
+  apt:
+    pkg: "{{item}}"
+    state: present
+  with_items: "{{ dbg_sym_packages_2 }}"
+  become: yes 
+  when: enable_debug_symbol and python_install_2
+  tags:
+    - installation
+    - upgrade
+    
+- name: " {{ ansible_distribution }} | Make sure the python3 debug-symbol packages are installed"
+  apt:
+    pkg: "{{item}}"
+    state: present
+  with_items: "{{ dbg_sym_packages_3 }}"
+  become: yes 
+  when: enable_debug_symbol and python_install_3
+  tags:
+    - installation
+    - upgrade
+

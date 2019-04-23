@@ -1,0 +1,34 @@
+session_name: PERF-COUNT
+start_directory: ~/
+suppress_history: false        
+windows:
+  - window_name: info
+    window_index: 1
+    panes:
+      - shell_command: perf list
+      - shell_command: perf list 'sched:*'
+  - window_name: on-cpu
+    window_index: 2
+    panes:
+      - shell_command: perf stat -a sleep 5 \
+      - shell_command: perf stat -p PID sleep 5 \
+  - window_name: off-cpu
+    window_index: 3
+    panes:
+      - shell_command: 
+      - shell_command: 
+  - window_name: io-evt
+    window_index: 4
+    panes:
+      - shell_command: perf stat -e 'block:*' -a sleep 10 \
+      - shell_command: perf stat -e 'block:*' -p PID sleep 10 \
+  - window_name: syscall
+    window_index: 5
+    panes:
+      - shell_command: perf stat -e 'syscalls:FUNC' -a sleep 10 \
+      - shell_command: perf stat -e 'syscalls:FUNC' -p PID sleep 10 \
+  - window_name: generic
+    window_index: 8
+    panes:
+      - shell_command: perf stat -e 'EVENT' -a sleep 10  \
+      - shell_command: perf stat -e 'EVENT' -p PID sleep 10 \ 

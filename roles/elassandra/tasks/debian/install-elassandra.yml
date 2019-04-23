@@ -1,0 +1,239 @@
+- name: " {{ ansible_distribution }}  | Create group 'cassandra'"
+  group:
+    name: cassandra
+    state: present
+    system: yes
+  become: yes
+  tags:
+    - installation
+
+- name: " {{ ansible_distribution }}  | Create user 'cassandra'"
+  user:
+    name: cassandra
+    group: cassandra
+    createhome: no
+    home: /var/lib/cassandra
+    comment: "Cassandra database"
+    system: yes
+  become: yes
+  tags:
+    - installation
+
+- name: " {{ ansible_distribution }}  | Set default private IP to node_ip"
+  set_fact: 
+    private_ip: "{{ node_ip }}"
+  tags:
+    - installation
+    - configuration
+
+- name: " {{ ansible_distribution }} | Debug var[private_ip]"
+  debug: var=private_ip
+  tags:
+    - always
+
+- name: " {{ ansible_distribution }}  | Copy /tmp/seed_list"
+  template: 
+    src: seeds.j2 
+    dest: /tmp/seed_list 
+    owner: cassandra
+    group: cassandra
+    mode: 0664
+  become: yes
+  tags:
+    - installation
+    - configuration
+
+- name: Load seed list
+  shell: cat /tmp/seed_list
+  register: seed_list
+  tags:
+    - installation
+    - configuration
+
+- name: " {{ ansible_distribution }}  | Set seeds fact"
+  set_fact: seeds="{{ seed_list.stdout }}"
+  tags:
+    - installation
+    - configuration
+  
+- debug: var=seeds
+  tags:
+    - always
+
+- name: " {{ ansible_distribution }}  | Update ownership to data and log dirs"
+  file:
+    path: "{{ item }}"
+    owner: cassandra
+    group: cassandra
+    recurse: yes
+  with_items:
+    - /var/lib/cassandra
+    - /var/log/cassandra
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }}  | Download the elassandra.tar.gz from http"
+  get_url:
+    url: "{{elassandra_bin_url}}"
+    dest: "/tmp/{{elassandra_bin_file}}"
+    checksum: md5:{{elassandra_bin_md5}}
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }}  | Unarchive the elassandra.tar.gz from local"
+  unarchive:
+    src: "/tmp/{{elassandra_bin_file}}"
+    dest: /tmp
+    remote_src: yes 
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }}  | Creates system directory "
+  file:
+    path: "{{item}}"
+    state: directory
+    mode: 0775
+    recurse: yes
+  become: yes
+  with_items:
+    - /etc/cassandra
+    - /etc/default
+    - /etc/init.d
+    - /etc/security/limits.d
+    - /etc/sysctl.d
+    - /usr/share/cassandra/lib
+    - /var/lib/cassandra
+    - /var/log/cassandra
+    # ElasticSearch modules
+    - /usr/share/cassandra/modules
+  tags:
+    - installation
+    - upgrade
+
+  #XXX:https://github.com/ansible/ansible/issues/14131
+  # Ansible does not support neither
+  # 1. copy with remote_src and recursive=true - Error: Remote copy does not support recursive copy of director
+  # 2. synchronize does not work properly with delegate_to:{{inventory_hostname}}
+- name: " {{ ansible_distribution }}  | Copy lib/* recursively"
+    # Analogous to cassanra-all.deb
+  shell: "cp -r /tmp/{{elassandra_file_prefix}}/lib/* /usr/share/cassandra/lib"
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }}  | Copy file non-recursively"
+  copy: 
+    src: "/tmp/{{elassandra_file_prefix}}/{{item.src}}"
+    dest: "{{item.dest}}"
+    owner: root 
+    group: root 
+    mode: 0755 
+    remote_src: true
+  become: yes 
+  with_items:
+    # Analogous to cassanra-all.deb
+    - {src: 'tools/bin/cassandra-stress', dest: '/usr/bin/cassandra-stress'}
+    - {src: "lib/{{ elassandra_file_prefix }}.jar", dest: '/usr/share/cassandra/'}
+    - {src: "lib/cassandra-thrift-{{ cassandra_version }}.jar", dest: '/usr/share/cassandra/'}
+    - {src: 'bin/cqlsh', dest: '/usr/bin/cqlsh'}
+    - {src: 'bin/cqlsh.py', dest: '/usr/bin/cqlsh.py'}
+    - {src: 'bin/nodetool', dest: '/usr/bin/nodetool'}
+    - {src: 'bin/sstableloader', dest: '/usr/bin/sstableloader'}
+    - {src: 'bin/sstablescrub', dest: '/usr/bin/sstablescrub'}
+      #- {src: 'bin/sstableupgrade', dest: '/usr/bin/sstableupgrade'}
+      #- {src: 'bin/sstableutil', dest: '/usr/bin/sstableutil'}
+    - {src: 'bin/sstableverify', dest: '/usr/bin/sstableverify'}
+    - {src: 'bin/cassandra', dest: '/usr/share/cassandra'}
+    # Analogous to cassandra-tools.deb
+    - {src: 'tools/bin/sstableexpiredblockers', dest: '/usr/bin/'}
+    - {src: 'tools/bin/sstablelevelreset', dest: '/usr/bin/'}
+    - {src: 'tools/bin/sstablemetadata', dest: '/usr/bin/'}
+    - {src: 'tools/bin/sstableofflinerelevel', dest: '/usr/bin/'}
+    - {src: 'tools/bin/sstablerepairedset', dest: '/usr/bin/'}
+    - {src: 'tools/bin/sstablesplit', dest: '/usr/bin/'}
+    - {src: 'tools/bin/sstabledump', dest: '/usr/bin/'}
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }}  | Create a soft link"
+  file: 
+    # Analogous to cassanra-all.deb
+    src: "/usr/share/cassandra/{{elassandra_file_prefix}}.jar"
+    dest: /usr/share/cassandra/apache-cassandra.jar
+    state: link 
+  become: yes 
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }}  | Copy /etc/*"
+  template: src={{item.src}} dest={{item.dest}} mode=0644
+  with_items:
+    - { src: '../templates/usr/sbin/cassandra', dest: '/usr/sbin/cassandra'}
+    - { src: "../templates/usr/share/cassandra/cassandra.in.sh", dest: '/usr/share/cassandra/cassandra.in.sh'}
+    - { src: '../templates/etc/cassandra/cassandra-env.sh.j2', dest: '/etc/cassandra/cassandra-env.sh' }
+    - { src: '../templates/etc/cassandra/cassandra-rackdc.properties.j2', dest: '/etc/cassandra/cassandra-rackdc.properties' }
+    - { src: '../templates/etc/cassandra/cassandra-topology.properties.j2', dest: '/etc/cassandra/cassandra-topology.properties' }
+    - { src: '../templates/etc/cassandra/cassandra.yaml.j2', dest: '/etc/cassandra/cassandra.yaml' }
+    - { src: '../templates/etc/cassandra/commitlog_archiving.properties', dest: '/etc/cassandra/commitlog_archiving.properties' }
+    - { src: '../templates/etc/cassandra/jvm.options', dest: '/etc/cassandra/jvm.options' }
+    - { src: '../templates/etc/cassandra/logback-tools.xml', dest: '/etc/cassandra/logback-tools.xml' }
+    - { src: '../templates/etc/cassandra/logback.xml', dest: '/etc/cassandra/logback.xml' }
+    - { src: '../templates/etc/default/cassandra', dest: '/etc/default/cassandra' }
+    - { src: '../templates/etc/init.d/cassandra', dest: '/etc/init.d/cassandra' }
+    - { src: '../templates/etc/security/limits.d/cassandra.conf', dest: '/etc/security/limits.d/cassandra.conf' }
+    - { src: '../templates/etc/sysctl.d/cassandra.conf', dest: '/etc/sysctl.d/cassandra.conf' }
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }}  | pip install cqlsh + cqlshlib"
+  pip:
+    name: cqlsh
+    state: present
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }}  | chmod +x executable files"
+  file:
+    owner: root
+    group: root
+    path: "{{ item }}"
+    mode: 0755
+  with_items:
+    - /usr/sbin/cassandra
+    - /etc/init.d/cassandra
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: Enable performance tweaks
+  script: perf-tweaks.sh
+  become: yes
+  tags:
+    - installation
+
+- name: " {{ ansible_distribution }}  | Start cassandra service"
+  service:
+    name: cassandra
+    state: started
+    enabled: true
+  become: yes
+  tags:
+    - installation
+    - service-started
+    - service-enabled
+
+#- name: Wait for server autostart
+#  wait_for: path=/var/log/cassandra/system.log search_regex="Starting listening for CQL clients"
+          

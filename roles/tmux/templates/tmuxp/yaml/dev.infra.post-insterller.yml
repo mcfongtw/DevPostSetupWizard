@@ -1,0 +1,30 @@
+session_name: ANSIBLE
+start_directory: /data/dev/git/workspace_infra/InfraPostInstaller/
+suppress_history: false        
+windows:
+  - window_name: git
+    window_index: 1
+    layout: main-vertical
+    focus: true
+    panes:
+      - shell_command: git status
+      - shell_command: git.log
+  - window_name: roles
+    window_index: 2
+    layout: main-vertical
+    start_directory: /data/dev/git/workspace_infra/InfraPostInstaller/roles/
+    panes:
+      - shell_command:
+      - shell_command: tree .
+  - window_name: tests
+    window_index: 3
+    start_directory: /data/dev/git/workspace_infra/InfraPostInstaller/tests/
+    panes:
+      - shell_command:
+      - shell_command:
+  - window_name: root
+    window_index: 4
+    start_directory: /data/dev/git/workspace_infra/InfraPostInstaller/
+    panes:
+      - shell_command:
+      - shell_command:

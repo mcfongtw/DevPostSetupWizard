@@ -1,0 +1,8 @@
+# file: gnome/defaults/Debian.yml
+
+target_packages:
+  - gnome-shell
+  - ubuntu-gnome-desktop 
+  - gnome-tweak-tool 
+  - ttf-ubuntu-font-family
+

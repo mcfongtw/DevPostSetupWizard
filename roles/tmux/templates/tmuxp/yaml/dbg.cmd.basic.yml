@@ -1,0 +1,65 @@
+session_name: DBG-BASIC
+start_directory: ~/
+suppress_history: false        
+windows:
+  - window_name: overall
+    window_index: 1
+    focus: true
+    layout: main-horizontal
+    options:
+      main-pane-height: 30
+    panes:
+      - shell_command: htop \
+      - shell_command: vmstat 30
+  - window_name: cpu
+    window_index: 2
+    layout: main-horizontal
+    options:
+      main-pane-height: 20
+    panes:
+      - shell_command: mpstat -P ALL
+      - shell_command: lscpu
+      - shell_command: cpustat \
+  - window_name: memory
+    window_index: 3
+    layout: main-vertical
+    options:
+      main-pane-height: 20
+    panes:
+      - shell_command: cat /proc/meminfo
+      - shell_command: free -m
+      - shell_command: dmidecode -t 17
+  - window_name: io
+    window_index: 4
+    panes:
+      - shell_command: iostat -xk 30
+      - shell_command: iotop
+  - window_name: fd
+    window_index: 5
+    panes:
+      - shell_command: lsof -p 1
+      - shell_command: echo 'other fd command'
+  - window_name: traffic
+    window_index: 6
+    layout: main-horizontal
+    options:
+      main-pane-height: 10
+    panes:
+      - shell_command: ifconfig
+      - shell_command: iftop \
+      - shell_command: ifconfig \
+  - window_name: port
+    window_index: 7
+    panes:
+      - shell_command: lsof -i :<port> -p \
+      - shell_command: netstat -tulnap | grep <port> \
+  - window_name: syslog
+    window_index: 8
+    panes:
+      - shell_command: tail -f /var/log/syslog
+      - shell_command: dmesg
+  - window_name: disk
+    window_index: 9
+    panes:
+      - shell_command: df /
+      - shell_command: du \

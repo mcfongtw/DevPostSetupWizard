@@ -1,0 +1,56 @@
+- name: "{{ ansible_distribution }} | Make sure the apt-transport-https is installed"
+  apt:
+    pkg: "{{item}}"
+    state: present
+  with_items:
+    - apt-transport-https
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }} | Download the signed key"
+  become: yes 
+  apt_key: 
+    url: "https://repos.influxdata.com/influxdb.key"
+    state: present
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }} | Enable influxdb repository"
+  become: yes 
+  shell: | 
+    echo 'deb https://repos.influxdata.com/debian xenial stable' > /etc/apt/sources.list.d/influxdb.list
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }} | Update apt packages"
+  become: yes 
+  apt: 
+    update_cache=yes
+  tags:
+    - installation
+    - upgrade
+    
+- name: "{{ ansible_distribution }} | Make sure the influxDB packages are installed"
+  apt:
+    pkg: "{{item}}"
+    state: present
+  with_items: "{{ target_packages }}"
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }} | Start and enable influxDB"
+  service:
+    name: influxdb
+    state: started
+    enabled: yes
+  become: yes 
+  tags:
+    - installation
+    - service-started
+    - service-enabled

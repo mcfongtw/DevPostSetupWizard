@@ -1,0 +1,9 @@
+
+target_packages:
+ - systemtap
+ - systemtap-devel
+ - systemtap-sdt-devel
+ - systemtap-client
+ - systemtap-server
+
+

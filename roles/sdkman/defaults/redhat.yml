@@ -1,0 +1,15 @@
+prereq_packages:
+  - zip
+  - unzip
+
+target_packages:
+
+sdkman_packages:
+  - maven
+  - groovy
+  - grails
+  - scala
+  - sbt
+  - ant
+        
+

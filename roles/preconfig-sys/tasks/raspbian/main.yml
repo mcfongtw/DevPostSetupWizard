@@ -1,0 +1,21 @@
+---
+#- name: raspbian/debian_arm| expand the file filesystem
+#  include: raspbian/expand-filesystem.yml
+#  tags: preconfig
+
+- name: raspbian/debian_arm | set Internationalization Options
+  include: raspbian/i18n.yml
+  tags: preconfig
+
+- name: raspbian/debian_arm | Set WiFi Options
+  include: raspbian/wifi.yml
+  when: enable_wifi == true and wifi_password is defined
+  tags: preconfig
+
+- name: raspbian/debian_arm | Run apt-get update and apt-get upgrade
+  include: debian/update-apt.yml
+  tags: preconfig
+
+- name: raspbian/debian_arm | Set the hostname
+  include: hostname.yml
+  tags: preconfig   

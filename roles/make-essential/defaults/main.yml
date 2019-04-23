@@ -1,0 +1,4 @@
+# file: make-essential/defaults/main.yml
+
+target_packages:
+

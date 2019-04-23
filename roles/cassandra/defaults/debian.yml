@@ -1,0 +1,11 @@
+
+cassandra_version: "3.11.0"
+cassandra_file_prefix: "apache-cassandra-{{cassandra_version}}"
+
+cassandra_bin_file: "{{ cassandra_file_prefix }}-bin.tar.gz"
+cassandra_bin_md5: "96c72922df1170b4b5dec81b27d451fa"
+cassandra_src_file: "{{ cassandra_file_prefix }}-src.tar.gz"
+
+cassandra_bin_url: "http://apache.stu.edu.tw/cassandra/{{ cassandra_version }}/{{ cassandra_bin_file }}"
+cassandra_src_url: "http://apache.stu.edu.tw/cassandra/{{ cassandra_version }}/{{ cassandra_src_file }}"
+

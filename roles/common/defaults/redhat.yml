@@ -1,0 +1,9 @@
+# file: common/defaults/redhat.yml
+
+target_packages:
+ - wget
+ - curl
+ - yum-utils
+ - tar
+ - colordiff
+

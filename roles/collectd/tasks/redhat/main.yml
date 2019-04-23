@@ -1,0 +1,11 @@
+# file: collectd/vars/RedHat.yml
+
+
+- name: " {{ ansible_distribution }} | Make sure the collectd packages are installed"
+  yum:
+    name: "{{item}}"
+    state: present
+  with_items: "{{ target_packages }}"
+  tags:
+    - installation
+    - upgrade

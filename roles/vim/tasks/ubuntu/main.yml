@@ -1,0 +1,117 @@
+- name: "{{ ansible_distribution }} | Make sure the vim packages are installed"
+  apt:
+    pkg: "{{item}}"
+    state: present
+  with_items: "{{ target_packages }}"
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: "{{ ansible_distribution }} | Creates directory {{ conf_vim_home }}/bundle/Vundle.vim"
+  file: 
+    path: "{{ conf_vim_home }}/bundle/Vundle.vim"
+    state: directory 
+    owner: "{{ username }}"
+    group: "{{ username }}" 
+    mode: "u=rwx,g=rx,o=rx" 
+    recurse: yes
+  become: yes
+  tags:
+    - installation
+
+- name: "{{ ansible_distribution }} | Copy .vim* to /root"
+  template:
+    src: "{{ item }}"
+    dest: /root
+    owner: root
+    mode: "u=rw,g=r,o=r"
+  with_items:
+    - ../templates/.vimrc 
+  become: yes 
+  tags:
+    - installation
+    - configuration
+
+- name: "{{ ansible_distribution }} | Copy .vim* to /home/{{ username }}"
+  template:
+    src: "{{ item }}"
+    dest: "/home/{{ username }}"
+    owner: "{{ username }}"
+    mode: "u=rw,g=r,o=r"
+  with_items:
+    - ../templates/.vimrc 
+  become: yes 
+  tags:
+    - installation
+    - configuration
+         
+- name: "{{ ansible_distribution }} | git clone Vundle.vim.git to {{ conf_vim_home }}/bundle/Vundle.vim"
+  git:
+    repo: 'https://github.com/gmarik/Vundle.vim.git'
+    dest: "{{ conf_vim_home }}/bundle/Vundle.vim"
+    version: origin/master
+    force: yes
+  tags:
+    - installation
+    - upgrade
+
+  #NOTE: Do not install w/ root permission, otherwise bundles would stay with root:root
+- name: "{{ ansible_distribution }} | Install vim vundle plugins"
+  shell: vim +PluginInstall +qall
+  tags:
+    - installation
+    - upgrade
+
+# Example of setting up a subset of plugin differently (for different account)
+#- name: "{{ ansible_distribution }} | rm -rf /home/{{username}}/.vim/bundle/{subset} and make symbollinks to {{ conf_vim_home }}/bundle"
+#  shell: "cd /home/{{ username }}/.vim/bundle/ && rm -rf ./{subset} && ln -s {{ conf_vim_home }}/bundle/{subset} ./"  
+
+- name: "{{ ansible_distribution }} | Check if YouCompleteMe has installed"
+  stat: 
+    path: "{{ conf_vim_home }}/bundle/YouCompleteMe/third_party/ycmd/ycm_core.so"
+  register: check_ycm_installed
+  tags:
+    - always
+
+- name: "{{ ansible_distribution }} | YouCompleteMe has been installed"
+  debug: 
+    msg: YouCompleteMe has been installed.
+  when: check_ycm_installed.stat.exists == true
+  tags:
+    - always
+ 
+- name: "{{ ansible_distribution }} | Install YouCompleteMe | w/ Jedi-based auto-completion engine for py2/3"
+  shell: "python {{ conf_vim_home }}/bundle/YouCompleteMe/install.py"
+  when: check_ycm_installed.stat.exists == false
+  tags:
+    - installation
+    - upgrade
+
+- name: "{{ ansible_distribution }} | Check if templates dir exists"
+  stat: 
+    path: "{{ DEV_GIT_PATH }}/workspace_infra/InfraPostInstaller/roles/tmux/templates/tmuxp/yaml/"
+  register: check_infra_repo_installed
+  tags:
+    - always
+
+- name: "{{ ansible_distribution }} | Skip if {{ DEV_GIT_PATH }}/workspace_infra/InfraPostInstaller/ does not exist"
+  debug: 
+    msg: InfraPostInstaller repo does not exist.
+  when: check_infra_repo_installed.stat.exists == false
+  tags:
+    - always
+
+
+- name: "{{ ansible_distribution }} | Copy .vimrc"
+  cron: 
+    name: "Copy /home/{{username}}/.vimrc" 
+    user: "{{ username }}" 
+    hour: "*/2"
+    job: "cp ~/.vimrc {{ DEV_GIT_PATH }}/workspace_infra/InfraPostInstaller/roles/vim/templates/.vimrc"
+    state: present
+    disabled: no
+  when: check_infra_repo_installed.stat.exists == true
+  tags:
+    - installation
+    - configuration

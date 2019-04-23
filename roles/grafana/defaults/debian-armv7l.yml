@@ -1,0 +1,8 @@
+prereq_packages:
+   - adduser
+   - libfontconfig
+   - apt-transport-https
+
+target_url: "https://bintray.com/fg2it/deb/download_file?file_path=main%2Fg%2Fgrafana_4.3.2_armhf.deb"
+
+target_packages:

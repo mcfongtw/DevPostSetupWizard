@@ -1,0 +1,5 @@
+# file: collectd/defaults/redhat.yml
+
+target_packages:
+ - collectd
+

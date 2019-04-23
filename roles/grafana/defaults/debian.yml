@@ -1,0 +1,7 @@
+prereq_packages:
+   - adduser
+   - libfontconfig
+   - apt-transport-https
+
+target_packages:
+   - grafana 

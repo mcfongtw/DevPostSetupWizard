@@ -1,0 +1,14 @@
+- name: "{{ ansible_distribution }} | Check if /tmp/elassandra-[version]/ exists"
+  stat: path="/tmp/{{elassandra_file_prefix}}/"
+  become: yes 
+  register: temp_elassandra_dir 
+
+- name: "{{ ansible_distribution }} | Elassandra has been downloaded and configured"
+  debug:
+    msg: Elassandra has been installed.
+  when: temp_elassandra_dir.stat.exists == true
+
+- name: "{{ ansible_distribution }} | Download the elassandra-bin.tar.gz from http"
+  include: debian/install-elassandra.yml
+  when: temp_elassandra_dir.stat.exists == false
+  

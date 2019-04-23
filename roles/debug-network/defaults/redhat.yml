@@ -1,0 +1,7 @@
+# file: debug-network/defaults/Debian.yml
+
+target_packages:
+   - iftop
+   - iptraf 
+   - tcpdump
+

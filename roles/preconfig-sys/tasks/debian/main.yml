@@ -1,0 +1,20 @@
+---
+- name: "debian | Create SSH folder"
+  file: path=~/.ssh state=directory
+  tags:
+    - installation
+
+- name: "debian | run 'dpkg --configure -a'"
+  become: yes
+  command: dpkg --configure -a
+  tags:
+    - installation
+    - configuration
+
+- name: "debian | Run apt-get update and apt-get upgrade"
+  include: debian/update-apt.yml
+
+- name: "debian | Set the hostname"
+  include: hostname.yml
+
+  

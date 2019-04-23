@@ -1,0 +1,5 @@
+target_packages:
+   - tmux 
+
+conf_tmux_home: "{{ DEV_CONF_PATH }}/tmux" 
+conf_tmuxp_home: "{{ conf_tmux_home }}/tmuxp" 

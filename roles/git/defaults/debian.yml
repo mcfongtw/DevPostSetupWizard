@@ -1,0 +1,5 @@
+# file: debug-network/defaults/Debian.yml
+
+target_packages:
+   - git
+

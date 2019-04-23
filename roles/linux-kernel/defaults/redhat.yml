@@ -1,0 +1,8 @@
+
+target_packages:
+ - kernel-devel-{{ansible_kernel}}
+
+dbg_sym_packages:
+ - kernel-debuginfo-{{ansible_kernel}}
+ - glibc-debuginfo
+

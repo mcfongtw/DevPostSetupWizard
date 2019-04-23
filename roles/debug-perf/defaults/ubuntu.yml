@@ -1,0 +1,10 @@
+
+target_packages:
+   - linux-tools-common 
+   - linux-tools-generic 
+   - linux-tools-{{ansible_kernel}}
+   - systemtap 
+   - systemtap-client 
+   - systemtap-sdt-dev 
+   - systemtap-server
+

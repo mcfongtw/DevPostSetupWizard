@@ -1,0 +1,6 @@
+target_packages:
+
+docker_compose_yaml_path: /data/dev/tools/docker/compose/
+
+docker_compose_version: 1.16.1
+

@@ -1,0 +1,11 @@
+
+cassandra_version: "3.0.10"
+elassandra_version: "2.4.2"
+elassandra_full_version: "{{ elassandra_version }}-10"
+elassandra_file_prefix: "elassandra-{{elassandra_version}}"
+
+elassandra_bin_file: "{{ elassandra_file_prefix }}.tar.gz"
+elassandra_bin_md5: "0b218014e6d0a39992a96533a4099c44"
+
+elassandra_bin_url: "https://github.com/strapdata/elassandra/releases/download/v{{ elassandra_full_version }}/{{ elassandra_bin_file }}"
+

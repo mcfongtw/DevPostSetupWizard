@@ -1,0 +1,8 @@
+
+target_packages:
+   - perf-tools-unstable
+   - systemtap 
+   - systemtap-client 
+   - systemtap-sdt-dev 
+   - systemtap-server
+

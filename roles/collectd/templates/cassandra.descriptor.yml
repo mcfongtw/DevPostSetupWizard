@@ -1,0 +1,15 @@
+# Transformation descriptor file for Cassandra
+#
+#
+# Full or relative path to directory which contains meta definition for JmxMBeans
+#
+# Default value : ${PKG_INSTALLED_DIR}/mkconfig/examples/
+app_conf_dir : {{ mkconfig_repo.dest }}/
+
+#
+# List of application name of which should perform configuration transformation.
+# Each of these application (name) should map to a meta definition file for JmxMBeans
+#
+# Default value : list(cassandra, jenkins, jira)
+app_list :
+   - cassandra

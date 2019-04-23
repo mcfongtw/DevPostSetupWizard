@@ -1,0 +1,12 @@
+# file: make-essential/defaults/debian-armv7l.yml
+
+target_packages:
+   - autoconf
+   - binutils-doc
+   - bison
+   - build-essential
+   - flex
+   - gettext
+   - make
+   - cmake
+

@@ -1,0 +1,3 @@
+- name: "Stop Cassandra"
+  shell: "nodetool disablebinary && nodetool disablegossip && sleep 10 && nodetool drain && sleep 30 && service cassandra stop"
+        

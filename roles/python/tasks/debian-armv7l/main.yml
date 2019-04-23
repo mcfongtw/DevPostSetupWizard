@@ -1,0 +1,80 @@
+---
+- name: "{{ ansible_distribution }} | Purge the python-pip if it exists"
+  apt: name={{ item }} purge=yes
+  with_items:
+    - "python*-pip"
+  ignore_errors: yes
+  tags:
+    - installation
+  become: yes    
+
+- name: "{{ ansible_distribution }} | Ensure that Python2 packages are installed"
+  apt:
+    pkg: "{{item}}"
+    state: present
+    update_cache: yes 
+    cache_valid_time: 1800
+  become: yes    
+  with_items: "{{ python_apt_packages_2 }}"
+  when: python_install_2
+  tags:
+    - installation
+    - upgrade
+
+- name: "{{ ansible_distribution }} | easy_install pip"
+  easy_install:
+    name: "pip"
+    state: latest
+    executable: easy_install
+  become: yes    
+  when: python_install_2
+  tags:
+    - installation
+    - upgrade
+
+- name: "{{ ansible_distribution }} | Ensure that Python3 packages are installed"
+  apt:
+    pkg: "{{item}}"
+    state: present
+    update_cache: yes 
+    cache_valid_time: 1800
+  become: yes    
+  with_items: "{{ python_apt_packages_3 }}"
+  when: python_install_3
+  tags:
+    - installation
+    - upgrade
+
+- name: "{{ ansible_distribution }} | easy_install3 pip"
+  easy_install:
+    name: "pip"
+    state: latest
+    executable: easy_install3
+  become: yes    
+  when: python_install_3
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }} | Make sure the python2 debug-symbol packages are installed"
+  apt:
+    pkg: "{{item}}"
+    state: present
+  with_items: "{{ dbg_sym_packages_2 }}"
+  become: yes 
+  when: enable_debug_symbol and python_install_2
+  tags:
+    - installation
+    - upgrade
+    
+- name: " {{ ansible_distribution }} | Make sure the python3 debug-symbol packages are installed"
+  apt:
+    pkg: "{{item}}"
+    state: present
+  with_items: "{{ dbg_sym_packages_3 }}"
+  become: yes 
+  when: enable_debug_symbol and python_install_3
+  tags:
+    - installation
+    - upgrade
+

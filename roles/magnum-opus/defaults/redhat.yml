@@ -1,0 +1,7 @@
+# file: magnum-opus/defaults/redhat.yml
+
+target_packages:
+   - texlive 
+   - texlive-latex
+   - texlive-collection-latex
+   - texlive-collection-latexrecommended

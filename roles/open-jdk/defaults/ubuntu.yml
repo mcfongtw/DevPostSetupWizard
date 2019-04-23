@@ -1,0 +1,11 @@
+target_packages:
+   - openjdk-8-jdk
+   #FIXME: A bug that openjdk-9 would fail in installation
+   #Ref: https://bugs.launchpad.net/ubuntu/+source/openjdk-9/+bug/1550950 
+   #- openjdk-9-jdk 
+
+
+dbg_sym_packages:
+   - openjdk-8-dbg
+     #   - openjdk-8-jdk-dbgsym
+     #   - openjdk-8-jdk-headless-dbgsym

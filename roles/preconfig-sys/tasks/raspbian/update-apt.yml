@@ -1,0 +1,29 @@
+# Run apt-get related 
+#   
+
+- name: " raspbian | Update apt packages"
+  become: yes
+  apt: 
+    update_cache=yes
+  tags:
+    - installation
+    - upgrade
+
+- name: "raspbian | Upgrade (dist) packages via apt"
+  become: yes 
+  apt: 
+    upgrade=dist
+  when: upgrade_opt is defined and upgrade_opt=='dist'
+  tags:
+    - installation
+    - upgrade
+
+- name: "raspbian | Upgrade (safe) packages via apt"
+  become: yes 
+  apt: 
+    upgrade=safe
+  when: upgrade_opt is defined and upgrade_opt=='safe'
+  tags:
+    - installation
+    - upgrade
+    

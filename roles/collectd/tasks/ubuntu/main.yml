@@ -1,0 +1,43 @@
+
+- name: " {{ ansible_distribution }} | mkdir -p /etc/collectd/collectd.conf.d/ "
+  file: path=/etc/collectd/collectd.conf.d/ state=directory owner=root group=root mode=775 recurse=yes
+  become: yes
+  tags:
+    - installation
+
+- name: " {{ ansible_distribution }} | set /etc/collectd/collectd.conf"
+  become: yes
+  template: src=../templates/collectd.conf dest=/etc/collectd/collectd.conf
+  tags:
+    - installation
+    - configuration
+
+- name: " {{ ansible_distribution }} | set /etc/collectd/collectd.conf.d/influxdb.conf"
+  become: yes
+  template: src=../templates/influxdb.conf dest=/etc/collectd/collectd.conf.d/influxdb.conf
+  tags:
+    - installation
+    - configuration
+
+- name: " {{ ansible_distribution }} | Copy the rest of collectd configurations to /etc/collectd"
+  copy:
+    src: "{{ item }}"
+    dest: /etc/collectd/collectd.conf.d/
+    owner: root
+    mode: 644
+  with_fileglob:
+    - files/etc/collectd/collectd.conf.d/*
+  become: yes
+  tags:
+    - installation
+    - configuration
+
+- name: " {{ ansible_distribution }} | Make sure the collectd packages are installed"
+  apt:
+    pkg: "{{item}}"
+    state: present
+  with_items: "{{ target_packages }}"
+  become: yes
+  tags:
+    - installation
+    - upgrade

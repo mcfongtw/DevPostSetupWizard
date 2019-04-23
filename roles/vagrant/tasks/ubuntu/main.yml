@@ -1,0 +1,123 @@
+- name: "{{ ansible_distribution }} | Purge the old virtualbox-4.* if it exists"
+  apt: 
+    name: "virtualbox-4.*"
+    purge: yes
+  ignore_errors: yes 
+  become: yes 
+  tags:
+    - installation
+
+- name: "{{ ansible_distribution }} | Purge the old virtualbox-5.0 if it exists"
+  apt: 
+    name: "virtualbox-5.0"
+    purge: yes
+  ignore_errors: yes 
+  become: yes 
+  tags:
+    - installation
+
+- name: " {{ ansible_distribution }} | Enable virtualbox repository"
+  become: yes 
+  shell: | 
+    echo 'deb http://download.virtualbox.org/virtualbox/debian xenial contrib' > /etc/apt/sources.list.d/virtualbox.list
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }} | Download the signed key"
+  become: yes
+  apt_key: 
+    url: "https://www.virtualbox.org/download/oracle_vbox_2016.asc"
+    state: present
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }} | Update apt packages"
+  become: yes 
+  apt: 
+    update_cache=yes
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }} | Make sure the virtualbox packages are installed"
+  apt:
+    pkg: "{{item}}"
+    state: present
+  with_items: "{{ target_packages }}"
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }} | Make sure the vagrant packages are installed"
+  apt:
+    deb: "{{ vagrant_download_url }}"
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }} | Check if extension pack is already installed"
+  shell: "VBoxManage list extpacks"
+  register: extpack_list
+  become: yes
+  tags:
+    - always
+
+- name: " {{ ansible_distribution }} | Extension Pack has been installed"
+  debug:
+    msg: "VirtualBox Extension Pack has been installed"
+  when: 'extpack_list.stdout != "Extension Packs: 0"'
+  tags:
+    - always
+ 
+- name: " {{ ansible_distribution }} | Find VirtualBox version"
+  command: bash -c "VBoxManage --version | sed -r 's/([0-9])\.([0-9])\.([0-9]{1,2}).*/\1.\2.\3/'"
+  register: vbox_version
+  become: yes
+  when: 'extpack_list.stdout == "Extension Packs: 0"' 
+  tags:
+    - always
+
+- name: " {{ ansible_distribution }} | Download virtual box extension pack "
+  command: "{{ item }}"
+  with_items: 
+    - wget -q -N "http://download.virtualbox.org/virtualbox/{{ vbox_version.stdout }}/Oracle_VM_VirtualBox_Extension_Pack-{{ vbox_version.stdout }}.vbox-extpack" -O /tmp/Oracle_VM_VirtualBox_Extension_Pack-{{ vbox_version.stdout }}.vbox-extpack
+    - "VBoxManage extpack install --replace /tmp/Oracle_VM_VirtualBox_Extension_Pack-{{ vbox_version.stdout }}.vbox-extpack --accept-license={{ vbox_license_checksum }}"
+  become: yes
+  when: 'extpack_list.stdout == "Extension Packs: 0"'
+  tags:
+    - installation
+    - upgrade
+
+- name: "{{ ansible_distribution }} | Creates directory {{ vbox_machine_folder }} if exists"
+  file: 
+    path: "{{ vbox_machine_folder }}"
+    state: directory 
+    owner: "{{ username }}"
+    group: "{{ username }}" 
+    mode: "u=rwx,g=rx,o=rx" 
+    recurse: yes 
+  when: vbox_machine_folder is defined
+  become: yes 
+  tags:
+    - installation
+
+- name: "{{ ansible_distribution }} | Reset vbox property {{ vbox_machine_folder }} if exists"
+  command: "{{ item }}"
+  with_items: 
+    - "vboxmanage setproperty machinefolder {{ vbox_machine_folder }}"
+    - "vboxmanage list systemproperties | grep folder"
+  when: vbox_machine_folder is defined
+  become: yes 
+  tags:
+    - installation
+
+#XXX: A workaround for https://github.com/geerlingguy/packer-centos-7/issues/26
+- name: " {{ ansible_distribution }} | Install vagrant-vbguest plugin"
+  shell: "vagrant plugin install vagrant-vbguest" 
+  become: yes
+  tags:
+    - installation

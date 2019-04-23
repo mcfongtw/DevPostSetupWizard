@@ -1,0 +1,7 @@
+
+target_packages:
+  - linux-headers-{{ansible_kernel}}
+
+dbg_sym_packages:
+  - linux-image-{{ansible_kernel}}-dbg
+  - libglib2.0-0-dbg 

@@ -1,0 +1,9 @@
+# file: collectd/defaults/debian-armv7l.yml
+
+target_packages:
+   - collectd
+
+monitor_server_addr: 192.168.2.122
+monitor_server_port: 25827
+
+mkconfig_repo: {src: 'http://192.168.2.102:10081/OSS/MkConfig.git', dest: '/data/tools/collectd/MkConfig', tag: 'origin/0.1.x-master'}

@@ -1,0 +1,7 @@
+# file: common/defaults/debian-armv7l.yml
+
+target_packages:
+   - wget
+   - curl
+   - tar
+   - colordiff

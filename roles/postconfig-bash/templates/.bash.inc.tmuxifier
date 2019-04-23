@@ -1,0 +1,23 @@
+## #############################
+## The Beginning of tmuxifier ##
+## #############################
+
+# Include and init tmuxifier
+[[ -s "{{ DEV_CONF_PATH }}/tmux/tmuxifier/init.sh" ]] && source "{{ DEV_CONF_PATH }}/tmux/tmuxifier/init.sh"
+
+# add tmuxifier in PATH
+PATH="{{ DEV_CONF_PATH }}/tmux/tmuxifier/bin:$PATH"
+
+# tmuxifier default storage
+export TMUXIFIER_LAYOUT_PATH="{{ DEV_CONF_PATH }}/tmux/tmuxifier/layouts"
+
+# Setup tmuxifier path properly so that init.sh would init successfully
+TMUXIFIER="{{ DEV_CONF_PATH }}/tmux/tmuxifier"
+
+# set PATH so it includes user's private bin directories
+PATH="$HOME/bin:$HOME/.local/bin:$PATH"
+
+## #######################
+## The End of tmuxifier ##
+## #######################
+

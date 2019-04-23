@@ -1,0 +1,18 @@
+- name: " {{ ansible_distribution }} | Unarchive go {{go_version}} from official website"
+  unarchive:
+    src: "https://dl.google.com/go/go{{go_version}}.linux-amd64.tar.gz"
+    dest: /usr/local/
+    remote_src: yes
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: " {{ ansible_distribution }} | Set global variable global_check_golang_installed"
+  set_fact: 
+    global_check_golang_installed: true
+  tags:
+    - installation
+    - upgrade
+    - configuration
+

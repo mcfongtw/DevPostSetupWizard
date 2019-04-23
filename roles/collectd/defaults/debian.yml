@@ -1,0 +1,8 @@
+# file: collectd/defaults/debian-armv7l.yml
+
+target_packages:
+   - collectd
+
+monitor_server_addr: 192.168.2.122
+monitor_server_port: 25827
+

@@ -1,0 +1,11 @@
+# file: latex/defaults/Debian.yml
+
+target_packages:
+   - texlive-base
+   - texlive-latex-base
+   - pandoc
+   - context
+   - texlive-xetex
+   - texlive-fonts-extra
+   - texlive-math-extra
+   - texlive-bibtex-extra

@@ -1,0 +1,16 @@
+# An ansible-playbook to test CRITICAL ROLES with Travis CI
+---
+- name: run the playbook tasks on the localhost
+  hosts: localhost
+  become: true 
+  gather_facts: true
+  vars:
+    - username: travis
+    - enable_debug_symbol: false
+  roles:
+    - common
+    - git
+    - cpp
+    - make-essential
+    - python
+

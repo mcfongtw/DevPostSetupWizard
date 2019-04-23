@@ -1,0 +1,28 @@
+
+python_apt_packages_2:
+  - python
+  - python-pip
+  - python-dev
+
+dbg_sym_packages_2:
+  - python-all-dbg
+
+dbg_sym_packages_3:
+  - python3-all-dbg
+
+python_apt_packages_3:
+  - python3
+  - python3-pip
+  - python3-dev
+
+python_install_2: no
+python_install_3: yes
+
+python_pip_packages: []
+python_update_pip: no
+python_update_setuptools: no
+python_install_virtualenv: yes
+python_pip_executable: 
+# python_pip_version:           # default to latest
+# python_setuptools_version:    # default to latest
+# python_virtualenv_version:    # default to latest

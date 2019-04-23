@@ -1,0 +1,76 @@
+- name: "{{ ansible_distribution }} | Make sure the tmux packages are installed"
+  yum:
+    pkg: "{{item}}"
+    state: present
+  with_items: "{{ target_packages }}"
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+#########
+# TMUXP #
+#########
+- name: "{{ ansible_distribution }} | Make sure the tmuxp packages is installed"
+  pip:
+    name: tmuxp
+    state: present
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: "{{ ansible_distribution }} | Creates directory {{ conf_tmuxp_home }}/yaml"
+  file: 
+    path: "{{ conf_tmuxp_home }}/yaml"
+    state: directory 
+    owner: "{{username}}" 
+    group: "{{username}}"
+    mode: "u=rwx,g=rx,o=rx" 
+  become: yes
+  tags:
+    - installation
+
+- name: "{{ ansible_distribution}} | Copy the rest of tmuxp yaml to {{ conf_tmuxp_home }}/yaml"
+  template:
+    src: "{{ item }}"
+    dest: "{{ conf_tmuxp_home}}/yaml"
+  with_items:
+    - tmuxp/yaml/dev.flink.yml      
+    - tmuxp/yaml/dev.portfolio.yml
+    - tmuxp/yaml/dev.infra.post-insterller.yml
+    - tmuxp/yaml/dbg.cmd.basic.yml
+    - tmuxp/yaml/dbg.cmd.network.yml
+    - tmuxp/yaml/dbg.cmd.io.yml
+    - tmuxp/yaml/dbg.perf.counting.yml
+    - tmuxp/yaml/dbg.perf.profiling.yml
+  tags:
+    - installation
+    - configuration
+
+- name: "{{ ansible_distribution }} | Check if templates dir exists"
+  stat: 
+    path: "{{ DEV_GIT_PATH }}/workspace_infra/InfraPostInstaller/roles/tmux/templates/tmuxp/yaml/"
+  register: check_infra_repo_installed
+  tags:
+    - always
+
+- name: "{{ ansible_distribution }} | Skip if {{ DEV_GIT_PATH }}/workspace_infra/InfraPostInstaller/ does not exist"
+  debug: 
+    msg: InfraPostInstaller repo does not exist.
+  when: check_infra_repo_installed.stat.exists == false
+  tags:
+    - always
+
+- name: Create repair cron job entry
+  cron: 
+    name: "Copy bash configuration" 
+    user: "{{ username }}" 
+    hour: "*/2"
+    job: "cp {{ conf_tmuxp_home }}/yaml/* {{ DEV_GIT_PATH }}/workspace_infra/InfraPostInstaller/roles/tmux/templates/tmuxp/yaml/"
+    state: present
+    disabled: no
+  when: check_infra_repo_installed.stat.exists == true
+  tags:
+    - installation
+    - configuration

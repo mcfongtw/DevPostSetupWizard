@@ -1,0 +1,107 @@
+- name: "{{ ansible_distribution }} | Purge the old repo if it exists"
+  apt: name={{ item }} purge=yes
+  with_items:
+    - "lxc-docker*"
+    - "docker.io*"
+  ignore_errors: yes
+  tags:
+    - installation
+
+- name: "{{ ansible_distribution }} | Check if docker has installed"
+  command: dpkg-query -l docker-engine
+  register: check_docker_installed
+  ignore_errors: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: "{{ ansible_distribution }} | Docker has been installed"
+  debug: 
+    msg: Docker has been installed.
+  when: check_docker_installed.stderr.find('no packages found') == -1 
+  tags:
+    - installation
+    - upgrade
+
+- name: "{{ ansible_distribution }} | install latest docker with one-liner"
+  shell: curl -sSL https://get.docker.com | sh
+  become: yes
+  when: check_docker_installed.stderr.find('no packages found') != -1 
+  tags:
+    - installation
+    - upgrade
+
+- name: "{{ ansible_distribution }} | Add user {{ username }} into group docker"
+  shell: usermod -aG docker {{ username }} 
+  become: yes
+  when: check_docker_installed.stderr.find('no packages found') != -1 
+  tags:
+    - installation
+
+- name: "{{ ansible_distribution }} | Start and enable docker service"
+  service: 
+    name: docker 
+    state: started
+    enabled: true
+  become: yes
+  tags:
+    - installation
+    - service-started
+    - service-enabled
+
+- name: "{{ ansible_distribution }} | git clone docker-compose.git"
+  git:
+    repo: "https://github.com/docker/compose.git"
+    dest: "/tmp/docker-compose"
+    version: "{{ docker_compose_version }}"
+    force: yes 
+  tags:
+    - installation
+    - upgrade
+
+- name: "{{ ansible_distribution }} | build docker-compose from source"
+  command: bash -c "{{ item }}"
+  args:
+    chdir: /tmp/docker-compose
+  with_items:
+    - docker build -t docker-compose:armhf -f Dockerfile.armhf . 
+    - docker run --rm --entrypoint="script/build/linux-entrypoint" -v $(pwd)/dist:/code/dist -v $(pwd)/.git:/code/.git "docker-compose:armhf"
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: "{{ ansible_distribution }} | Copy compiled binary to /usr/local/bin/"
+  command: "{{ item }}"
+  args:
+    chdir: /tmp/docker-compose
+  with_items:
+    - cp dist/docker-compose-Linux-armv7l /usr/local/bin/docker-compose
+    - chown root:root /usr/local/bin/docker-compose
+    - chmod 0755 /usr/local/bin/docker-compose
+  become: yes
+  tags:
+    - installation
+    - upgrade
+
+- name: "{{ ansible_distribution }} | Creates directory {{ docker_compose_yaml_path }}"
+  file: 
+    path: "{{ docker_compose_yaml_path }}"
+    state: directory 
+    owner: "{{username}}" 
+    group: "{{username}}"
+    mode: "u=rwx,g=rx,o=rx" 
+    recurse: yes
+  become: yes
+  tags:
+    - installation
+
+- name: "{{ ansible_distribution }} | Download docker-compose bash autocompletion"
+  get_url:
+    url: "https://raw.githubusercontent.com/docker/compose/{{ docker_compose_version }}/contrib/completion/bash/docker-compose" 
+    dest: /etc/bash_completion.d/docker-compose
+    mode: 0644
+  become: yes
+  tags:
+    - installation
+    - upgrade
