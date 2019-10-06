@@ -20,3 +20,4 @@ script:
   - travis_wait 10 ansible-playbook -vv test-role-openjdk.yml 
   - travis_wait 10 ansible-playbook -vv test-role-vim.yml 
   - travis_wait 10 ansible-playbook -vv test-role-tmux.yml 
+  - travis_wait 10 ansible-playbook -vv test-role-filebeat.yml 

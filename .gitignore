@@ -1,6 +1,7 @@
 *.retry
 
+.idea/
 
 # production playbook
-prod*.yml
+playbooks/
 
